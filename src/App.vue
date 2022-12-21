@@ -1,5 +1,12 @@
 <template>
-  <div class="container" style="margin: 0 auto">
+  <!--    <div class="container mx-auto flex flex-col items-center bg-gray-100 p-4">-->
+  <!--      <div class="fixed w-100 h-100 opacity-80 bg-purple-800 inset-0 z-50 flex items-center justify-center">-->
+  <!--        <svg class="animate-spin -ml-1 mr-3 h-12 w-12 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">-->
+  <!--          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>-->
+  <!--          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>-->
+  <!--        </svg>-->
+  <!--      </div>-->
+  <div class="container" style="margin: 10px auto">
     <section>
       <div class="flex">
         <div class="max-w-xs">
@@ -17,7 +24,7 @@
                 placeholder="Например DOGE"
             />
           </div>
-          <div class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap">
+          <div v-if="ticker" class="flex bg-white shadow-md p-1 rounded-md shadow-md flex-wrap">
             <span
                 class="inline-flex items-center px-2 m-1 rounded-md text-xs font-medium bg-gray-300 text-gray-800 cursor-pointer">
               BTC
@@ -35,7 +42,7 @@
               CHD
             </span>
           </div>
-          <!--          <div class="text-sm text-red-600">Такой тикер уже добавлен</div>-->
+<!--                    <div v-if="ticker" class="text-sm text-red-600">Такой тикер уже добавлен</div>-->
         </div>
       </div>
       <button
@@ -110,15 +117,15 @@
             :style="{ height: `${bar}%` }"
             class="bg-purple-800 border w-10"
         ></div>
-<!--        <div-->
-<!--            class="bg-purple-800 border w-10 h-32"-->
-<!--        ></div>-->
-<!--        <div-->
-<!--            class="bg-purple-800 border w-10 h-48"-->
-<!--        ></div>-->
-<!--        <div-->
-<!--            class="bg-purple-800 border w-10 h-16"-->
-<!--        ></div>-->
+        <!--        <div-->
+        <!--            class="bg-purple-800 border w-10 h-32"-->
+        <!--        ></div>-->
+        <!--        <div-->
+        <!--            class="bg-purple-800 border w-10 h-48"-->
+        <!--        ></div>-->
+        <!--        <div-->
+        <!--            class="bg-purple-800 border w-10 h-16"-->
+        <!--        ></div>-->
       </div>
       <button
           @click="sel = null"
@@ -169,7 +176,7 @@ export default {
   methods: {
     add() {
       const newTicket = {
-        name: this.ticker,
+        name: this.ticker.toUpperCase(),
         price: '-',
       };
       this.tickers.push(newTicket);
@@ -200,7 +207,7 @@ export default {
     normalizeGraph() {
       const maxValue = Math.max(...this.graph);
       const minValue = Math.min(...this.graph);
-      return this.graph.map( price => 5 + ((price - minValue) * 95) / (maxValue - minValue));
+      return this.graph.map(price => 5 + ((price - minValue) * 95) / (maxValue - minValue));
     }
   }
 };
