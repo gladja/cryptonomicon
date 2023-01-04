@@ -10,9 +10,9 @@
     <section>
       <div class="flex">
         <div class="max-w-xs">
-          <label for="wallet" class="block text-sm font-medium text-gray-700"
-          >Тикер</label
-          >
+          <label for="wallet" class="block text-sm font-medium text-gray-700">
+            Тикер:
+          </label>
           <div class="mt-1  relative rounded-md shadow-md">
             <input
                 v-model="ticker"
@@ -42,7 +42,7 @@
               CHD
             </span>
           </div>
-<!--                    <div v-if="ticker" class="text-sm text-red-600">Такой тикер уже добавлен</div>-->
+          <!--                    <div v-if="ticker" class="text-sm text-red-600">Такой тикер уже добавлен</div>-->
         </div>
       </div>
       <button
@@ -67,9 +67,34 @@
       </button>
     </section>
 
+    <hr class="w-full border-t border-gray-600 my-4"/>
+    <div class="max-w-xs">
+      <div>
+        <button
+            class="my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+          Назад
+        </button>
+        <button
+            class="my-4 mx-2 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+          Вперед
+        </button>
+        <div>
+          <label for="wallet" class="block text-sm font-medium text-gray-700">
+            Фильтр:
+          </label>
+          <input
+              v-model="filter"
+              class="mt-1 px-3 py-2 bg-white border shadow-sm border-slate-300 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-sky-500 block w-full rounded-md sm:text-sm focus:ring-1"
+              placeholder="Например BTC"
+          />
+        </div>
+      </div>
+    </div>
+
+
     <hr v-if="tickers.length" class="w-full border-t border-gray-600 my-4"/>
     <dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
-      <div v-for="item in tickers"
+      <div v-for="item in filteredTickers()"
            v-bind:key="item.name"
            @click="select(item)"
            :class="sel === item ? 'border-4' : ''"
@@ -164,13 +189,11 @@ export default {
   data() {
     return {
       ticker: null,
-      tickers: [
-        // {name: 'DEMO', price: '-'},
-        // {name: 'DEMO', price: '-'},
-        // {name: 'DEMO', price: '-'},
-      ],
+      tickers: [],
       sel: null,
       graph: [],
+      page: 1,
+      filter: '',
     }
   },
 
@@ -182,10 +205,15 @@ export default {
       this.tickers.forEach(ticker => {
         this.subscribeToUpdate(ticker.name);
       })
-     }
+    }
   },
 
   methods: {
+
+    filteredTickers() {
+      return this.tickers.filter(ticker => ticker.name.includes(this.filter.toUpperCase()))
+    },
+
     subscribeToUpdate(tickerName) {
       setInterval(async () => {
         const f = await fetch(
