@@ -71,11 +71,15 @@
     <div class="max-w-xs">
       <div>
         <button
-            class="my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+            v-if="page > 1"
+            @click ="page = page - 1"
+            class="my-4 mr-2 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
           Назад
         </button>
         <button
-            class="my-4 mx-2 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+            v-if="page < Math.ceil(tickers.length / 6)"
+            @click ="page = page + 1"
+            class="my-4 inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-full text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
           Вперед
         </button>
         <div>
@@ -211,7 +215,9 @@ export default {
   methods: {
 
     filteredTickers() {
-      return this.tickers.filter(ticker => ticker.name.includes(this.filter.toUpperCase()))
+      const start = (this.page - 1) * 6;
+      const end = this.page * 6;
+      return this.tickers.filter(ticker => ticker.name.includes(this.filter.toUpperCase())).slice(start, end)
     },
 
     subscribeToUpdate(tickerName) {
@@ -236,6 +242,7 @@ export default {
         price: '-',
       };
       this.tickers.push(newTicket);
+      this.filter = '';
 
       localStorage.setItem('cryptonomicon-list', JSON.stringify(this.tickers));
       this.subscribeToUpdate(newTicket.name)
@@ -255,6 +262,13 @@ export default {
       const minValue = Math.min(...this.graph);
       return this.graph.map(price => 5 + ((price - minValue) * 95) / (maxValue - minValue));
     }
+  },
+
+  watch: {
+    filter() {
+      this.page = 1;
+    }
   }
+
 };
 </script>
