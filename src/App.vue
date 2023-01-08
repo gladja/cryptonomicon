@@ -202,8 +202,9 @@ export default {
   },
 
   created() {
-    // const windowData = Object.formEntries(new URL(window.location).searchParams.entries());
-    //
+    const windowData = Object.fromEntries(new URL(window.location).searchParams.entries());
+    Object.assign(this, windowData);
+    //or, but bad work
     // if (windowData.filter) {
     //   this.filter = windowData.filter;
     // }
@@ -250,6 +251,13 @@ export default {
         return this.graph.map(() => 50);
       }
       return this.graph.map(price => 5 + ((price - minValue) * 95) / (maxValue - minValue));
+    },
+
+    pageStateOptions() {
+      return {
+        filter: this.filter,
+        page: this.page,
+      };
     }
   },
 
@@ -275,10 +283,8 @@ export default {
         name: this.ticker.toUpperCase(),
         price: '-',
       };
-      this.tickers.push(newTicket);
+      this.tickers = [...this.tickers, newTicket];
       this.filter = '';
-
-      localStorage.setItem('cryptonomicon-list', JSON.stringify(this.tickers));
       this.subscribeToUpdate(newTicket.name)
     },
 
@@ -299,6 +305,10 @@ export default {
       this.graph = [];
     },
 
+    tickers() {
+      localStorage.setItem('cryptonomicon-list', JSON.stringify(this.tickers));
+    },
+
     paginatedTickers() {
       if (this.paginatedTickers.length === 0 && this.page > 1) {
         this.page -= 1;
@@ -307,11 +317,11 @@ export default {
 
     filter() {
       this.page = 1;
-      window.history.pushState(null, document.title, `${window.location.pathname}?filter=${this.filter}&page=${this.page}`);
+      // window.history.pushState(null, document.title, `${window.location.pathname}?filter=${this.filter}&page=${this.page}`);
     },
 
-    page() {
-      window.history.pushState(null, document.title, `${window.location.pathname}?filter=${this.filter}&page=${this.page}`);
+    pageStateOptions(value) {
+      window.history.pushState(null, document.title, `${window.location.pathname}?filter=${value.filter}&page=${value.page}`);
     }
   },
 };
