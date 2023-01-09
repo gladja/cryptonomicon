@@ -188,6 +188,7 @@
 </template>
 
 <script>
+import {loadTicker} from './api';
 export default {
   name: 'App',
   data() {
@@ -206,7 +207,7 @@ export default {
     Object.assign(this, windowData);
     //or, but bad work
     // if (windowData.filter) {
-    //   this.filter = windowData.filter;
+    //   this.filter = windowData.fi  lter;
     // }
     //
     // if (windowData.page) {
@@ -264,15 +265,16 @@ export default {
   methods: {
     subscribeToUpdate(tickerName) {
       setInterval(async () => {
-        const f = await fetch(
-            `https://min-api.cryptocompare.com/data/price?fsym=${tickerName}&tsyms=USD&api_key=d2e3ab92213daaaaaad0ca303bf5c6477ed574f7a43bfe4c2541c0de73ff01ee`
-        );
-        const data = await f.json();
+        const exchangeData = await loadTicker(tickerName);
+        // const f = await fetch(
+        //     `https://min-api.cryptocompare.com/data/price?fsym=${tickerName}&tsyms=USD&api_key=d2e3ab92213daaaaaad0ca303bf5c6477ed574f7a43bfe4c2541c0de73ff01ee`
+        // );
+        // const data = await f.json();
         this.tickers.find(t => t.name === tickerName).price =
-            data.USD > 1 ? data.USD.toFixed(2) : data.USD.toPrecision(2);
+            exchangeData.USD > 1 ? exchangeData.USD.toFixed(2) : exchangeData.USD.toPrecision(2);
 
         if (this.selectedTicker?.name === tickerName) {
-          this.graph.push(data.USD);
+          this.graph.push(exchangeData.USD);
         }
       }, 3000);
       this.ticker = '';
