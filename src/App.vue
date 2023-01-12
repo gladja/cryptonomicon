@@ -109,7 +109,7 @@
             {{ item.name }} - USD
           </dt>
           <dd class="mt-1 text-3xl font-semibold text-gray-900">
-            {{ item.price }}
+            {{ formatPrice(item.price) }}
           </dd>
         </div>
         <div class="w-full border-t border-gray-200"></div>
@@ -188,12 +188,12 @@
 </template>
 
 <script>
-import {loadTicker} from './api';
+import {subscribeToTicker, unsubscribeFromTicker} from './api';
 export default {
   name: 'App',
   data() {
     return {
-      ticker: null,
+      ticker: '',
       filter: '',
       tickers: [],
       selectedTicker: null,
@@ -218,10 +218,11 @@ export default {
 
     if (tickersData) {
       this.tickers = JSON.parse(tickersData);
-      this.tickers.forEach(ticker => {
-        this.subscribeToUpdate(ticker.name);
-      })
+      this.tickers.forEach(ticker =>  {
+        subscribeToTicker(ticker.name, (newPrice) => this.updateTicker(ticker.name, newPrice));
+      });
     }
+    setInterval(this.updateTickers, 3000);
   },
 
   computed: {
@@ -263,21 +264,20 @@ export default {
   },
 
   methods: {
-    subscribeToUpdate(tickerName) {
-      setInterval(async () => {
-        const exchangeData = await loadTicker(tickerName);
-        // const f = await fetch(
-        //     `https://min-api.cryptocompare.com/data/price?fsym=${tickerName}&tsyms=USD&api_key=d2e3ab92213daaaaaad0ca303bf5c6477ed574f7a43bfe4c2541c0de73ff01ee`
-        // );
-        // const data = await f.json();
-        this.tickers.find(t => t.name === tickerName).price =
-            exchangeData.USD > 1 ? exchangeData.USD.toFixed(2) : exchangeData.USD.toPrecision(2);
 
-        if (this.selectedTicker?.name === tickerName) {
-          this.graph.push(exchangeData.USD);
+    updateTicker(tickerName, price) {
+      this.tickers.filter(t => t.name === tickerName).forEach(t => {
+        if (t === this.selectedTicker) {
+          this.graph.push(price);
         }
-      }, 3000);
-      this.ticker = '';
+        t.price = price});
+    },
+
+    formatPrice(price) {
+      if (price === '-') {
+        return price;
+      }
+      return price > 1 ? price.toFixed(2) : price.toPrecision(2);
     },
 
     add() {
@@ -286,8 +286,10 @@ export default {
         price: '-',
       };
       this.tickers = [...this.tickers, newTicket];
+      this.ticker = '';
       this.filter = '';
-      this.subscribeToUpdate(newTicket.name)
+      subscribeToTicker(this.currentTicker.name, newPrice => this.updateTicker(this.currentTicker.name, newPrice));
+
     },
 
     select(ticker) {
@@ -299,6 +301,7 @@ export default {
        if (this.selectedTicker === tickerToRemove) {
          this.selectedTicker = null;
        }
+       unsubscribeFromTicker(tickerToRemove.name);
     },
   },
 
