@@ -42,7 +42,7 @@
               CHD
             </span>
           </div>
-          <!--                    <div v-if="ticker" class="text-sm text-red-600">Такой тикер уже добавлен</div>-->
+          <div v-if="filterRepeat.length " class="text-sm text-red-600">Такой тикер уже добавлен</div>
         </div>
       </div>
       <button
@@ -260,7 +260,11 @@ export default {
         filter: this.filter,
         page: this.page,
       };
-    }
+    },
+
+    filterRepeat() {
+      return this.tickers.filter(item => item.name === this.ticker.toUpperCase());
+    },
   },
 
   methods: {
@@ -285,6 +289,9 @@ export default {
         name: this.ticker.toUpperCase(),
         price: '-',
       };
+      if (this.ticker.toUpperCase() === this.filterRepeat[0]?.name ) {
+        return;
+      }
       this.tickers = [...this.tickers, newTicket];
       this.ticker = '';
       this.filter = '';
